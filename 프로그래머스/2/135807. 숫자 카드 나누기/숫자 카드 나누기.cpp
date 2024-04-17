@@ -5,8 +5,6 @@
 
 using namespace std;
 
-vector<vector<int>> dp;
-
 int gcd(int value, int mod) {
     if(mod == 0)
         return value;
