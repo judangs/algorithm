@@ -70,18 +70,26 @@ vector<string> solution(vector<string> commands) {
             if(parse.front() == "MERGE") {
                 int next_y = stoi(parse[3]) - 1;
                 int next_x = stoi(parse[4]) - 1;
-                union_find(find(50 * y + x), find(50 * next_y + next_x));
-                board[next_y][next_x] = "EMPTY";
+
+                int parent = find(50 * y + x);
+                int child = find(50 * next_y + next_x);
+                union_find(parent, child);
+                if(board[parent/50][parent%50] == "EMPTY" && board[child/50][child%50] != "EMPTY") {
+                    board[parent/50][parent%50] = board[child/50][child%50];
+                }
             }
             else if(parse.front() == "UNMERGE") {
+                vector<int> arr_idx;
                 int parent = find(50 * y + x);
                 string recover = board[parent / 50][parent % 50];
                 for(int i=0; i<arr.size(); i++) {
                     if(find(i) == parent) {
-                        arr[i] = i;
+                        arr_idx.push_back(i);
                         board[i/50][i%50] = "EMPTY";
                     }
                 }
+
+                for(int idx: arr_idx) arr[idx] = idx;
                 board[y][x] = recover;
             }
             else {
