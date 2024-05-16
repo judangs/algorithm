@@ -16,20 +16,16 @@ queue<pair<int, int>> q;
 
 
 void block_down(int m, int n, vector<string> & board) {
-    for(int i=0; i<n; i++) {
-        for(int j=m-1; 0<j; j--) {
-            if(board[j][i] == '0') {
-                int current = j;
-                while(0 <= current && board[current][i] == '0') {
-                    current--;
-                }
-                if(0 <= current) {
-                    board[j][i] = board[current][i];
-                    board[current][i] = '0';
-                }
+   
+
+    for(int i=m-1; i>0; i--) {
+        for(int j=0; j<n; j++) {
+            if(board[i][j] == '0') {
+                board[i][j] = board[i - 1][j];
+                board[i - 1][j] = '0';
             }
         }
-    }
+    } 
 }
 
 bool find_pattern(int m, int n, vector<string> & board) {
@@ -69,6 +65,13 @@ int solution(int m, int n, vector<string> board) {
         }
 
         block_down(m, n, board);
+        for(int i=0; i<m; i++) {
+            for(int j=0; j<n; j++) {
+                cout << board[i][j] << " ";
+            }
+            cout << endl;
+        }    
+        cout << endl;    
     }
 
     int answer = 0;
