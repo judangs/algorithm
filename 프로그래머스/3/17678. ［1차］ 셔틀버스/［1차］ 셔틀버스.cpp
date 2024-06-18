@@ -16,7 +16,6 @@ string number_to_time(int time) {
     string ret = "";
     if(time / 60 < 10) ret += "0";
     ret += to_string(time / 60) + ":";
-    
     if(time % 60 < 10) ret += "0";
     ret += to_string(time % 60);
 
@@ -24,24 +23,25 @@ string number_to_time(int time) {
 }
 
 string solution(int n, int t, int m, vector<string> timetable) {
-    int current = time_to_number("09:00");
-
+    
     sort(timetable.begin(), timetable.end());
+    
+    int current = time_to_number("09:00");
+    int idx = 0;
 
-    int member_idx = 0;
     string answer;
     for(int bus=1; bus<=n; bus++, current += t) {
         int count = 0;
-        for(int next_idx=member_idx; next_idx < timetable.size() && count < m; next_idx++) {
-            int next = time_to_number(timetable[member_idx]);
+        for(idx; idx<timetable.size() && count < m; idx++) {
+            int next = time_to_number(timetable[idx]);
             if(next <= current) {
-                member_idx++;
                 count++;
             }
-            else break;
+            else
+                break;
         }
-
-        if(count == m) answer = number_to_time(time_to_number(timetable[member_idx - 1]) - 1);
+        
+        if(count == m) answer = number_to_time(time_to_number(timetable[idx - 1]) - 1);
         else answer = number_to_time(current);
     }
 
