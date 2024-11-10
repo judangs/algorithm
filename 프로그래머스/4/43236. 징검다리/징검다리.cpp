@@ -33,14 +33,14 @@ int solution(int distance, vector<int> rocks, int n) {
     
     d.push_back(distance - rocks.back());
     
-    int left = 1;
-    int right = distance + 1;
+    int left = 0;
+    int right = distance;
     
     while(left + 1 < right) {
         int middle = (left + right) / 2;
-        if(check(middle) <= n) left = middle;
+        if(check(middle) <= n) left = middle + 1;
         else right = middle;
     }
     
-    return left;
+    return (right - 1);
 }
