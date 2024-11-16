@@ -34,7 +34,7 @@ int main() {
       answer.push_back(arr[current]);
     }
     else {
-      int idx = binary_search(0, answer.size()-1, arr[current], answer);
+      int idx = lower_bound(answer.begin(), answer.end(), arr[current]) - answer.begin();
       answer[idx] = arr[current];
     }
   }
