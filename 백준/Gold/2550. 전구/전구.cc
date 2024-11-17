@@ -51,7 +51,7 @@ int main() {
       index[idx] = lis.size() - 1;
     }
     else {
-      int insert = binary_search(lis, 0, lis.size(), other[idx].second);
+      int insert = binary_search(lis, -1, lis.size(), other[idx].second);
       lis[insert] = other[idx].second;
       index[idx] = insert;
     }
