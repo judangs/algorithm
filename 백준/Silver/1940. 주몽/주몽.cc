@@ -1,24 +1,38 @@
 #include <iostream>
-#include <map>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
 int N, M, A;
-map<int, int> needs;
+vector<int> arr;
 
 int main() {
-    
-    cin >> N >> M;
 
-    int answer = 0;
+    cin >> N >> M;
     for(int i=0; i<N; i++) {
         cin >> A;
-        if(needs[A] != 0) {
+        arr.push_back(A);
+    }
+
+    sort(arr.begin(), arr.end());
+    
+    int left = 0, right = arr.size() - 1;
+
+    int answer = 0;
+    while(left < right) {
+
+        int sum = arr[left] + arr[right];
+
+        if(sum == M) {
             answer++;
-            needs[A]--;
+            left++, right--;
+        }
+        else if(sum > M) {
+            right--;
         }
         else {
-            needs[M - A]++;
+            left++;
         }
     }
 
