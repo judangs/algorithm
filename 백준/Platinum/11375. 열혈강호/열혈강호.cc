@@ -4,52 +4,52 @@
 
 using namespace std;
 
-int N, M, c, w;
+int N, M, C, W;
 vector<vector<int>> graph;
-vector<bool> visit;
-vector<int> match;
+vector<int> works;
+vector<bool> visited;
 
-bool bin_match(int idx) {
+
+bool dfs(int current) {
     
-    for(auto work: graph[idx]) {
-        if(visit[work] == false) {
-            visit[work] = true;
+    for(auto next: graph[current]) {
+        if(visited[next] == false) {
+            visited[next] = true;
             
-            int person = match[work];
-            if(person == -1 || bin_match(person)) {
-                match[work] = idx;
+            if(works[next] == -1 || dfs(works[next])) {
+                works[next] = current;
                 return true;
             }
         }
     }
-    
+
     return false;
 }
 
 int main() {
-    
+
     cin >> N >> M;
-    
+
     graph.resize(N + 1);
-    visit.resize(M + 1, false);
-    match.resize(M + 1, -1);
-    
-    for(int i=1; i<=N; i++) {
-        cin >> c;
-        for(int work=0; work<c; work++) {
-            cin >> w;
-            graph[i].push_back(w);
+    for(int idx=0; idx<N; idx++) {
+        cin >> C;
+        for(int c=0; c<C; c++) {
+            cin >> W;
+            graph[idx + 1].push_back(W); 
         }
     }
-    
+
+    works.resize(M + 1, -1);
+    visited.resize(M + 1, false);
+
     int answer = 0;
-    for(int person=1; person<=N; person++) {
-        fill(visit.begin(), visit.end(), false);
-        if(bin_match(person) == true) {
+    for(int person=1; person <= N; person++) {
+        fill(visited.begin(), visited.end(), false);
+        if(dfs(person))
             answer++;
-        }
+        
     }
-    
+
+
     cout << answer;
-    
 }
