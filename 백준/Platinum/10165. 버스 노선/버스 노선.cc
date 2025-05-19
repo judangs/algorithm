@@ -29,8 +29,7 @@ int main() {
             station.push_back({ idx, a + N, b + N});
         }
         else {
-            if(b == 0) station.push_back({ idx, a + N, 2 * N});
-            else station.push_back({ idx, a, b + N});
+            station.push_back({ idx, a, b + N});
         }
     }
 
