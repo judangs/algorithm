@@ -48,8 +48,12 @@ ll build_suffix_array() {
     vector<ll> lcp(n, 0);
 
     int match = 0;
+    ll answer = 0ll;
     for(int i=0; i<n; i++) {
-        if(group[i] == 0) continue;
+        if(group[i] == 0) {
+            answer += (n - i);
+            continue;
+        }
         
         int j = sa[group[i] - 1];
         while(i + match < n && j + match < n && S[i + match] == S[j + match]) {
@@ -57,12 +61,10 @@ ll build_suffix_array() {
         }
 
         lcp[group[i]] = match;
+        answer += (n - i - match);
 
         if(match > 0) match--;
     }
-
-    ll answer = (n * (n + 1)) / 2;
-    for(int rank=1; rank<n; rank++) answer -= lcp[rank];
 
     return answer;
 }
