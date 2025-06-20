@@ -3,8 +3,8 @@
 #include <algorithm>
 #include <memory.h>
 
-#define fASTIO ios::sync_with_stdio(false); cin.tie(0); cout.tie(0);
 #define MAXNODE 100001
+#define MAXEDGE 300001
 #define INF 1e9
 
 using namespace std;
@@ -24,6 +24,7 @@ namespace unionfind {
     bool merge(int a, int b) {
         a = find(a), b = find(b);
         if(a == b) return false;
+        if(a < b) swap(a, b);
         pnode[a] = b;
         return true;
     }
@@ -43,11 +44,14 @@ namespace hld {
         void preprocessing(vector<vector<int>> & tree, int node, int pnode, int lv) {
 
             depth[node] = lv;
-            for(auto child: tree[node]) {
+            weight[node] = 1;
+
+            for(auto & child: tree[node]) {
                 if(pnode != child) {
                     parent[child] = node;
                     preprocessing(tree, child, node, lv + 1);
                     weight[node] += weight[child];
+                    if(weight[child] > weight[tree[node].front()]) swap(child, tree[node].front());
                 }
             }
         }
@@ -56,30 +60,23 @@ namespace hld {
             
             in[node] = ++id;
             
-            std::vector<int> next;
+            int heavy = 0;
             for(auto child: tree[node]) {
-                if(child != pnode) next.push_back(child);
-            }
-
-            sort(next.begin(), next.end(), [this](int a, int b) {
-                return weight[a] > weight[b];
-            });
-
-            if(!next.empty()) {
-                auto heavy = next.front();
-                head[heavy] = head[node];
-                decomposite(tree, heavy, node);
-            }
-            
-            for(int idx=1; idx<next.size(); idx++) {
-                int child = next[idx];
-                head[child] = child;
-                decomposite(tree, child, node);
+                if(child != pnode) {
+                    if(!heavy) {
+                        heavy = child;
+                        head[heavy] = head[node];
+                        decomposite(tree, heavy, node);
+                    }
+                    else {
+                        head[child] =child;
+                        decomposite(tree, child, node);
+                    }
+                }
             }
         }
 
         void build(std::vector<vector<int>> & tree) {
-            memset(weight, 1, sizeof(weight));
             head[1] = 1;
 
             preprocessing(tree, 1, 0, 1);
@@ -100,7 +97,7 @@ struct Edge {
     int idx;
     int u;
     int v;
-    int cost;
+    ll cost;
     bool use;
 
     bool operator<(const Edge & o) const {
@@ -110,26 +107,21 @@ struct Edge {
 vector<Edge> edges;
 vector<vector<int>> adj;
 
-struct Segtree {
+ll answer[MAXEDGE];
 
-    vector<int> arr;
-    vector<int> lazy;
+struct Segtree {
+    int arr[1 << 18], lazy[1 << 18];
     
     void init(int sz) {
-        arr.resize(4 * sz, INF);
-        lazy.resize(4 * sz, INF);
+        memset(arr, 0x3f, sizeof(arr)), memset(lazy, 0x3f, sizeof(lazy));
     }
 
     void push(int node, int l, int r) {
-        if(lazy[node] == INF) return;
-
         arr[node] = min(arr[node], lazy[node]);
         if(l != r) {
             for(auto & child: {node << 1, node << 1 | 1})
                 lazy[child] = min(lazy[child], lazy[node]);
         }
-
-        lazy[node] = INF;
     }
 
     void update(int node, int s, int e, int v, int l, int r)  {
@@ -138,14 +130,13 @@ struct Segtree {
 
         if(r < s || e < l) return;
         if(s <= l && r <= e) {
-            lazy[node] = min(lazy[node], v);
+            lazy[node] = v;
             push(node, l, r);
             return;
         }
 
         int m = (l + r) / 2;
         update(node << 1, s, e, v, l, m), update(node << 1 | 1, s, e, v, m + 1, r);
-        arr[node] = min(arr[node << 1], arr[node << 1 | 1]);
     }
 
     int query(int node, int s, int e, int l, int r) {
@@ -189,13 +180,16 @@ int query(int u, int v) {
 
 int main() {
     
-    fASTIO
+    ios::sync_with_stdio(false); 
+    cin.tie(0), cout.tie(0);
     cin >> N >> M;
+
     adj.resize(N + 1);
+    edges.resize(M);
 
     for(int i=0; i<M; i++) {
         int u, v, c; cin >> u >> v >> c;
-        edges.push_back({i, u, v, c, false});
+        edges[i] = {i, u, v, c, false};
     }
 
     unionfind::init(N);
@@ -215,17 +209,14 @@ int main() {
         if(!use) update(u, v, cost);
     }
 
-    vector<ll> answer(M);
     for(auto & [idx, u, v, cost, use]: edges) {
         if(!use) answer[idx] = mst;
         else {
-            int alter = query(u, v);
+            ll alter = query(u, v);
             if(alter == INF) answer[idx] = -1;
             else answer[idx] = (mst - cost + alter);
         }
     }
 
-    for(auto ans: answer) {
-        cout << ans << "\n";
-    }
+    for(int i=0; i<M; i++) cout << answer[i] << "\n";
 }
