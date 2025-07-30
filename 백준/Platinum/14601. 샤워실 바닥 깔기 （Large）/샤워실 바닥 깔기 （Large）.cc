@@ -7,10 +7,9 @@ int k, dy, dx;
 int tile = 1;
 vector<vector<int>> board;
 
-bool exist(int sy, int ey, int sx, int ex) {
-    
-    for(int cy=sy; cy<=ey; cy++) {
-        for(int cx=sx; cx<=ex; cx++) {
+bool exist(int y, int x, int size) {
+    for(int cy=y; cy<y+size; cy++) {
+        for(int cx=x; cx<x+size; cx++) {
             if(board[cy][cx] != 0)
                 return true;
         }
@@ -19,12 +18,13 @@ bool exist(int sy, int ey, int sx, int ex) {
     return false;
 }
 
-void dnC(int sy, int ey, int sx, int ex) {
+void dnC(int y, int x, int size) {
     
-    if(ey - sy == 1 && ex - sx == 1) {
-        for(int cy=sy; cy<=ey; cy++) {
-            for(int cx=sx; cx<=ex; cx++) {
-                if(board[cy][cx] == 0) board[cy][cx] = tile;
+    if(size == 2) {
+        for(int cy=y; cy<y+size; cy++) {
+            for(int cx=x; cx<x+size; cx++) {
+                if(board[cy][cx] == 0)
+                    board[cy][cx] = tile;
             }
         }
 
@@ -32,19 +32,20 @@ void dnC(int sy, int ey, int sx, int ex) {
         return;
     }
 
-    int my = (sy + ey) / 2, mx = (sx + ex) / 2;
-    
-    if(!exist(sy, my, sx, mx)) board[my][mx] = tile;
-    if(!exist(sy, my, mx + 1, ex)) board[my][mx + 1] = tile;
-    if(!exist(my + 1, ey, sx, mx)) board[my + 1][mx] = tile;
-    if(!exist(my + 1, ey, mx + 1, ex)) board[my + 1][mx + 1] = tile;
+    size >>= 1;
+    int ey = y + size - 1, ex = x + size - 1;
+
+    if(!exist(y, x, size)) board[ey][ex] = tile;
+    if(!exist(y, ex + 1, size)) board[ey][ex + 1] = tile;
+    if(!exist(ey + 1, x, size)) board[ey + 1][ex] = tile;
+    if(!exist(ey + 1, ex + 1, size)) board[ey + 1][ex + 1] = tile;
 
     tile++;
 
-    dnC(sy, my, sx, mx);
-    dnC(sy, my, mx + 1, ex);
-    dnC(my + 1, ey, sx, mx);
-    dnC(my + 1, ey, mx + 1, ex);
+    dnC(y, x, size);
+    dnC(y, ex + 1, size);
+    dnC(ey + 1, x, size);
+    dnC(ey + 1, ex + 1, size);
 }
 
 int main() {
@@ -55,11 +56,12 @@ int main() {
     cin >> k;
     cin >> dx >> dy;
 
+
     int N = 1 << k;
     board.resize(N + 1, vector<int>(N + 1, 0));
-    
+
     board[dy][dx] = -1;
-    dnC(1, N, 1, N);
+    dnC(1, 1, N);
 
     for(int y=N; y>=1; y--) {
         for(int x=1; x<=N; x++) {
