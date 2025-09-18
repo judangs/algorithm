@@ -1,19 +1,24 @@
 #include <iostream>
 #include <vector>
+#include <string>
 
-#define fastio ios_base::sync_with_stdio(false); cin.tie(NULL); cout.tie(NULL);
+#define fastio ios::sync_with_stdio(false); cin.tie(NULL); cout.tie(NULL);
 
 using namespace std;
 
 int N;
 string P;
 vector<vector<pair<int, char>>> tree;
+vector<int> fail;
+vector<vector<int>> automaton;
 
+// 실패 함수 생성
 vector<int> get_fail() {
-    
-    vector<int> ret(P.size(), 0);
 
-    int begin = 1, match = 0, m = P.size();
+    int m = P.size();
+    vector<int> ret(m, 0);
+    
+    int begin = 1, match = 0;
     while(begin + match < m) {
         if(P[begin + match] == P[match]) {
             match++;
@@ -31,65 +36,53 @@ vector<int> get_fail() {
     return ret;
 }
 
-pair<int, int> KMP(string H, int begin) {
-    
-    vector<int> fail = get_fail();
-    
-    int match = 0, n = H.size(), m = P.size();
-    if(n < m) return {0, 0};
 
-    int ret = 0, last = 0;
-    while(begin <= n - m) {
-        if(match < m && H[begin + match] == P[match]) {
-            match++;
-            if(match == m) {
-                ret++; last = begin;
-            }
-        }
-        else {
-            if(match == 0) begin++;
-            else {
-                begin += (match - fail[match - 1]);
-                match = fail[match - 1];
+vector<vector<int>> build_automaton(const string &P, const vector<int> & fail) {
+    int m = P.size();
+    vector<vector<int>> aut(m + 1, vector<int>(26, 0));
+
+    for (int state = 0; state <= m; ++state) {
+        for (char ch = 'a'; ch <= 'z'; ++ch) {
+            if (state < m && ch == P[state]) {
+                aut[state][ch - 'a'] = state + 1;
+            } else if (state > 0) {
+                aut[state][ch - 'a'] = aut[fail[state - 1]][ch - 'a'];
+            } else {
+                aut[state][ch - 'a'] = 0;
             }
         }
     }
 
-    return {ret, last};
+    return aut;
 }
 
-int dfs(int now, int parent, string path, int begin) {
 
-    auto res = KMP(path, begin);
-    int ret = res.first;
+int dfs(int node, int match) {
+    int count = 0;
+    if (match == P.size()) count++;
 
-    for(auto next: tree[now]) {
-        if(res.first == 0)
-            ret += dfs(next.first, now, path + next.second, begin);
-        else
-            ret += dfs(next.first, now, path + next.second, res.second + 1);
-    }
+    for (auto &[next, ch] : tree[node])
+        count += dfs(next, automaton[match][ch - 'a']);
 
-    return ret;
-
+    return count;
 }
 
 int main() {
-
     fastio;
-    cin >> N;
-    tree = vector<vector<pair<int, char>>> (N + 1);
 
-    for(int i = 0; i < N - 1; i++) {
+    cin >> N;
+    tree.resize(N + 1);
+
+    for (int i = 0; i < N - 1; i++) {
         int u, v; char c;
         cin >> u >> v >> c;
-        tree[u].push_back({ v, c });
+        tree[u].emplace_back(v, c);
     }
 
     cin >> P;
+    fail = get_fail();
+    automaton = build_automaton(P, fail);
 
-    int answer = dfs(1, 0, "", 0);
-    cout << answer << endl;
-    
-
+    int answer = dfs(1, 0);
+    cout << answer << '\n';
 }
