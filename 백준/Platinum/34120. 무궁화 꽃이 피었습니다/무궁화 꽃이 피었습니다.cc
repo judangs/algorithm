@@ -22,22 +22,37 @@ struct Node {
     }
 };
 
-ll move(ll t, ll road_time, int dest) {
-    
+ll move(ll t, ll road_time, int dest, int now) {
     if (road_time > a) return -1;
-    ll cycle = a + b;
-    ll pos = t % cycle;
     
-    if (pos >= a) t += (cycle - pos);
-    ll remaining = a - t % cycle;
-
-    if(road_time < remaining) return (t + road_time);
-    if(road_time == remaining) {
-        if(window[dest] == 1) return -1;
-        return (t + road_time);
+    ll cycle = a + b;
+    
+    while(true) {
+        ll pos = t % cycle;
+        
+        if(window[now] == 1 && a <= pos) return -1;
+        if (a <= pos) {
+            t += (cycle - pos);
+            pos = 0;
+        }
+        
+        ll remaining = a - pos;
+        
+        if (road_time > remaining) {
+            if (window[now] == 1) return -1;
+            t += remaining + b;
+            continue;
+        }
+        
+        ll arrival = t + road_time;
+        ll arrival_pos = arrival % cycle;
+        
+        if (arrival_pos == 0 || arrival_pos == a) {
+            if (window[dest] == 1) return -1;
+        }
+        
+        return arrival;
     }
-
-    return move(t + (cycle - t % cycle), road_time, dest);
 }
 
 ll dijkstra(int start) {
@@ -51,8 +66,9 @@ ll dijkstra(int start) {
         pq.pop();
 
         if(dist[node.now] < node.time) continue;
+        
         for(auto [next_node, road_time]: adj[node.now]) {
-            ll next_time = move(node.time, road_time, next_node);
+            ll next_time = move(node.time, road_time, next_node, node.now);
 
             if (next_time == -1) continue;
             if(next_time < dist[next_node]) {
@@ -85,5 +101,4 @@ int main() {
 
     ll answer = dijkstra(1);
     cout << answer << endl;
-
 }
