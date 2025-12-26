@@ -1,56 +1,44 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+#define fastio ios::sync_with_stdio(false); cin.tie(NULL); cout.tie(NULL);
+
 using namespace std;
+typedef long long ll;
 
-using ll = long long;
+const ll inf = 1e18;
+int N;
 
-struct Node {
-    int idx;
-    ll a;
-    bool operator>(const Node& o) const { return a > o.a; }
+struct Food {
+    ll A;
+    ll B;
 };
 
 int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
 
-    int N;
+    fastio;
     cin >> N;
-    vector<pair<ll,ll>> foods(N);
-    for (auto &p: foods) cin >> p.first >> p.second;
 
-    sort(foods.begin(), foods.end(), [](auto &l, auto &r){
-        return l.second < r.second;
+    vector<Food> foods(N + 1);
+    for(int i = 1; i <= N; i++) cin >> foods[i].A >> foods[i].B;
+    
+    sort(foods.begin() + 1, foods.end(), [](const Food & l, const Food & r) {
+        return l.B < r.B;
     });
 
-    priority_queue<Node, vector<Node>, greater<Node>> pq;
-    for (int i = 0; i < N; i++) pq.push({i, foods[i].first});
+    vector<ll> prefix(N + 1, 0ll);
+    for(int i = 1; i <= N; i++) prefix[i] = prefix[i - 1] + foods[i].B;
+    vector<ll> suffix(N + 1, inf); suffix[N] = foods[N].A;
+    for(int i = N - 1; 0 < i; i--) suffix[i] = min(suffix[i + 1], foods[i].A);
 
-    vector<char> used(N, 0);
-
-    vector<ll> psum(N+1, 0);
-    for (int i = 0; i < N; i++) psum[i+1] = psum[i] + foods[i].second;
-
-    ll bestInside = (1LL<<62);
-
-    for (int k = 1; k <= N; k++) {
-        int t = k - 1;
-
-        if (t > 0) {
-            int idx = t - 1;
-            used[idx] = 1;
-            bestInside = min(bestInside, foods[idx].first - foods[idx].second);
-        }
-
-        while (!pq.empty() && used[pq.top().idx]) pq.pop();
-        ll minAOutside = pq.top().a;
-
-        ll ans = (1LL<<62);
-        ans = min(ans, psum[t] + minAOutside);
-        if (t > 0) {
-            ans = min(ans, psum[k] + bestInside);
-        }
-
-        cout << ans << "\n";
+    vector<ll> prefmin(N + 1, 0ll); prefmin[1] = foods[1].A - foods[1].B;
+    for(int i = 2; i <= N; i++) prefmin[i] = min(prefmin[i - 1], foods[i].A - foods[i].B);
+    
+    for(int i = 1; i <= N; i++) {
+        ll answer = (i == 1) ? prefix[i - 1] + suffix[i] 
+                            : min(prefix[i - 1] + suffix[i], prefix[i] + prefmin[i - 1]);
+        cout << answer << "\n";
     }
 
 }
