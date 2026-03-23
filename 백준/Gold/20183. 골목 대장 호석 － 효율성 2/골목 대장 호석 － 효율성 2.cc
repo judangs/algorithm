@@ -56,7 +56,7 @@ int main() {
         adj[e].push_back({ s, c });
     }
 
-    ll lo = 1, hi = 1e14 + 1;
+    ll lo = 0, hi = 1e14 + 1;
     while(lo + 1 < hi) {
         ll mid = (lo + hi) / 2;
         if(dijkstra(mid))
@@ -69,5 +69,7 @@ int main() {
     cout << ans << '\n';
 
     
-   
+    
+
+
 }
