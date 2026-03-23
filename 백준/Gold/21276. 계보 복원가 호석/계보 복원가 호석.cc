@@ -62,7 +62,6 @@ int main() {
     cin >> M;
     for(int i = 0; i < M; i++) {
         string X, Y; cin >> X >> Y;
-        adj[toidx[X]].push_back(toidx[Y]);
         adj[toidx[Y]].push_back(toidx[X]);
         indegree[toidx[X]]++;
     }
