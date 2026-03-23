@@ -43,7 +43,7 @@ int main() {
             cost += foods[j];
             if(K <= cost) break;
         }
-        arr[i] = { j, (0 < cost - K ? cost - K : 0)};
+        arr[i] = { min(N - 1, j), (0 < cost - K ? cost - K : 0)};
     }
 
     int ans = dp(0);
