@@ -6,17 +6,18 @@
 using namespace std;
 
 const int inf = 1e9;
-int N, K;
-vector<int> foods;
+int N;
+long long K;
+vector<long long> foods;
 
 struct Node {
     int end;
-    int cost;
+    long long cost;
 };
 vector<Node> arr;
-vector<int> cache;
+vector<long long> cache;
 
-int dp(int depth) {
+long long dp(int depth) {
     if(depth == N) return 0;
     
     auto & ret = cache[depth];
@@ -32,42 +33,23 @@ int main() {
 
     fastio;
     cin >> N >> K;
-    foods = vector<int>(N);
+    foods = vector<long long>(N);
     arr = vector<Node>(N);
-    cache = vector<int>(N, -1);
+    cache = vector<long long>(N, -1);
     for(auto & food: foods) cin >> food;
 
-    int left = 0, right = 0, now = 0;
-    bool finish = false;
-    while(left < N && right < N) {
-        if(right == N - 1) {
-            if(!finish) {
-                now += foods[right];
-                finish = true;
-            }
-            if(K <= now) {
-                arr[left] = { right, now - K };
-            }
-            if(now < K) {
-                arr[left] = { right, 0 };
-            }
-
-            now -= foods[left++];
-
-            if(left == N - 1)
-                break;
+    long long sum = 0ll;
+    for(int left = 0, right = 0; left < N; left++) {
+        while(right < N && sum < K) {
+            sum += foods[right++];
         }
-        if(right < N - 1) {
-            now += foods[right];
-            while(K <= now) {
-                arr[left] = { right, now - K };
-                now -= foods[left++];
-            }
-            right++;
-        }
+
+        if(K <= sum) arr[left] = { right - 1, sum - K };
+        else
+            arr[left] = { N - 1, 0 };
+        
+        sum -= foods[left];
     }
-
-    arr[N - 1] = { N - 1, (K <= foods[N - 1] ? foods[N - 1] - K : 0) };
 
     int ans = dp(0);
     cout << ans << "\n";
