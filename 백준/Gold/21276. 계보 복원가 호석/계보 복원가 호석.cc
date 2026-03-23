@@ -84,6 +84,9 @@ int main() {
 
     for(auto iter = children.begin(); iter != children.end(); iter++) {
         cout << ridx[iter->first] << ' ' << iter->second.size() << ' ';
+
+        sort(iter->second.begin(), iter->second.end());
+
         for(auto child: iter->second) 
             cout << ridx[child] << ' ';
         cout << '\n';
