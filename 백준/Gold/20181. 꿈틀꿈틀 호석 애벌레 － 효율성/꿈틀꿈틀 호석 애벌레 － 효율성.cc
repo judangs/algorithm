@@ -6,8 +6,7 @@
 using namespace std;
 
 const int inf = 1e9;
-int N;
-long long K;
+int N, K;
 vector<long long> foods;
 
 struct Node {
@@ -38,20 +37,40 @@ int main() {
     cache = vector<long long>(N, -1);
     for(auto & food: foods) cin >> food;
 
-    long long sum = 0ll;
-    for(int left = 0, right = 0; left < N; left++) {
-        while(right < N && sum < K) {
-            sum += foods[right++];
-        }
+    int left = 0, right = 0;
+    long long now = 0;
+    bool finish = false;
+    while(left < N && right < N) {
+        if(right == N - 1) {
+            if(!finish) {
+                now += foods[right];
+                finish = true;
+            }
+            if(K <= now) {
+                arr[left] = { right, now - K };
+            }
+            if(now < K) {
+                arr[left] = { right, 0 };
+            }
 
-        if(K <= sum) arr[left] = { right - 1, sum - K };
-        else
-            arr[left] = { N - 1, 0 };
-        
-        sum -= foods[left];
+            now -= foods[left++];
+
+            if(left == N - 1)
+                break;
+        }
+        if(right < N - 1) {
+            now += foods[right];
+            while(K <= now) {
+                arr[left] = { right, now - K };
+                now -= foods[left++];
+            }
+            right++;
+        }
     }
 
-    int ans = dp(0);
+    arr[N - 1] = { N - 1, (K <= foods[N - 1] ? foods[N - 1] - K : 0) };
+
+    long long ans = dp(0);
     cout << ans << "\n";
 
 }
