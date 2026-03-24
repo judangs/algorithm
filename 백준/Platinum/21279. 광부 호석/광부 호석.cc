@@ -38,9 +38,6 @@ int main() {
                     count++;
                 }
             }
-
-            if(count <= C)
-                ans = max(ans, now);
         }
         else {
             for(int i = 0; i < ygadget[H].size(); i++) {
@@ -52,6 +49,9 @@ int main() {
 
             H--;
         }
+
+        if(count <= C)
+            ans = max(ans, now);        
     }
 
     cout << ans << '\n';
