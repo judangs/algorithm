@@ -34,18 +34,24 @@ int main() {
     cin >> N >> C;
     for(int i = 0; i < N; i++) {
         int X, Y; ll V; cin >> X >> Y >> V;
-        xq.push({ X, V });
-        yq.push({ Y, V});
+        xq.push({ X, V }); yq.push({ Y, V});
     }
 
     ll ans = 0ll, now = 0ll; int count = 0;
     while(!yq.empty() && !xq.empty()) {
         if(count < C) {
-            now += xq.top().value; xq.pop();
-            ans = max(ans, now);
-            count++;
+            int tx = xq.top().pos;
+            while(!xq.empty() && xq.top().pos == tx) {
+                count++;
+                now += xq.top().value;
+                xq.pop();
+            }
         }
-        else {
+
+        if(count == C)
+            ans = max(ans, now);
+
+        if(count >= C) {
             int ty = yq.top().pos, ycount = 0;
             ll ytot = 0ll;
             while(!yq.empty() && yq.top().pos == ty) {
@@ -57,6 +63,8 @@ int main() {
             count = max(0, count - ycount);
             now = max(0ll, now - ytot);
         }
+
+        ans = max(ans, now);
     }
     
     cout << ans << '\n';
