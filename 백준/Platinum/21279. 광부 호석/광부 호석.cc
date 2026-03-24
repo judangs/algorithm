@@ -54,14 +54,19 @@ int main() {
         if(count >= C) {
             int ty = yq.top().pos, ycount = 0;
             ll ytot = 0ll;
-            while(!yq.empty() && yq.top().pos == ty) {
-                ytot += yq.top().value;
-                yq.pop();
-                ycount++;
-            }
+            while(true) {
+                while(!yq.empty() && yq.top().pos == ty) {
+                    ytot += yq.top().value;
+                    yq.pop();
+                    ycount++;
+                }
 
-            count = max(0, count - ycount);
-            now = max(0ll, now - ytot);
+                count = max(0, count - ycount);
+                now = max(0ll, now - ytot);
+
+                if(yq.empty() || count < C)
+                    break;
+            }
         }
 
         ans = max(ans, now);
