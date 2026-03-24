@@ -12,66 +12,61 @@ int N;
 ll C;
 
 struct Node {
-    int pos;
+    int x;
+    int y;
     ll value;
-
-    bool operator>(const Node & o) const {
-        return pos > o.pos;
-    }
-
-    bool operator<(const Node & o) const {
-        return pos < o.pos;
-    }    
 };
 
-int main() {
-
-    fastio;
-
-    priority_queue<Node, vector<Node>, greater<Node>> xq;
-    priority_queue<Node, vector<Node>, less<Node>> yq;
-    
-    cin >> N >> C;
-    for(int i = 0; i < N; i++) {
-        int X, Y; ll V; cin >> X >> Y >> V;
-        xq.push({ X, V }); yq.push({ Y, V});
+struct GreaterCompare {
+    bool operator()(const Node & l, const Node & r) {
+        if(l.x == r.x)
+            return l.y < r.y;
+        return l.x > r.x;
     }
+};
 
-    ll ans = 0ll, now = 0ll; int count = 0;
-    while(!yq.empty() && !xq.empty()) {
-        if(count < C) {
-            int tx = xq.top().pos;
-            while(!xq.empty() && xq.top().pos == tx) {
-                count++;
-                now += xq.top().value;
-                xq.pop();
-            }
+struct LessCompare {
+    bool operator()(const Node & l, const Node & r) {
+        if(l.y == r.y)
+            return l.x > r.x;
+        return l.y < r.y;
+    }
+};    
+
+    int main() {
+
+        fastio;
+
+        priority_queue<Node, vector<Node>, GreaterCompare> xq;
+        priority_queue<Node, vector<Node>, LessCompare> yq;
+        
+        cin >> N >> C;
+        for(int i = 0; i < N; i++) {
+            int X, Y; ll V; cin >> X >> Y >> V;
+            xq.push({ X, Y, V }); yq.push({ X, Y, V});
         }
 
-        if(count == C)
+        ll ans = 0ll, now = 0ll; int count = 0;
+        int H = 100001, W = -1;
+        while(0 <= H && W <= 100000) {
+    
+            if(count < C) {
+                now += xq.top().value; count++;
+                xq.pop();
+                W = (xq.empty() ? 100000 + 1 : xq.top().x);
+            }
+            
+            else if(count >= C) {
+                now -= yq.top().value; 
+                yq.pop();
+                H = (yq.empty() ? -1 : yq.top().y);
+                count--;
+            }
+
             ans = max(ans, now);
 
-        if(count >= C) {
-            int ty = yq.top().pos, ycount = 0;
-            ll ytot = 0ll;
-            while(true) {
-                while(!yq.empty() && yq.top().pos == ty) {
-                    ytot += yq.top().value;
-                    yq.pop();
-                    ycount++;
-                }
-
-                count = max(0, count - ycount);
-                now = max(0ll, now - ytot);
-
-                if(yq.empty() || count < C)
-                    break;
-            }
         }
+        
+        cout << ans << '\n';
 
-        ans = max(ans, now);
     }
-    
-    cout << ans << '\n';
-
-}
